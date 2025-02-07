@@ -3,7 +3,9 @@ import numpy as np
 import random
 import string
 from itertools import permutations
-import re  # Import the re module
+import re 
+
+# Add path, language and config the code. After done configing, go to runner to run the code.
 
 LANG_SOURCE = 'en'
 LANG_TARGET = 'es'
@@ -22,6 +24,7 @@ MAX_LINES_GENERATED = 10
 NUM_DELETIONS = 1
 ### Sliding Windows:
 WINDOW_SIZE = 2
+
 
 class augmentmethods:
     def __init__ (self):
