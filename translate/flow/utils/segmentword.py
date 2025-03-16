@@ -1,134 +1,115 @@
 from collections import Counter, defaultdict
 import math
 import re
+from config import CORPUS
 
-def load_corpus(file_path):
-    """
-    Đọc file văn bản, mỗi dòng là một câu,
-    trả về danh sách các câu (loại bỏ dòng trống).
-    """
-    with open(file_path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip()]
+class CorpusProcessor:
+    """Xử lý dữ liệu văn bản: đọc corpus và tiền xử lý."""
 
-def build_phrase_dict(corpus, max_ngram=5, min_freq=2, min_pmi=3):
-    """
-    Xây dựng từ điển cụm từ dựa trên chỉ số PMI, sử dụng tổng số n-gram:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.corpus = self._load_corpus()
 
-    - max_ngram: Độ dài tối đa của cụm (2 -> max_ngram).
-    - min_freq: Tần suất tối thiểu để cụm được xét.
-    - min_pmi: Ngưỡng PMI tối thiểu để cụm được chọn.
+    def _load_corpus(self):
+        """Đọc file văn bản và loại bỏ dòng trống."""
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            return [line.strip().lower() for line in f if line.strip()]
 
-    Công thức PMI (dạng log2):
-      PMI(w1, ..., wn) = log2( p(w1,...,wn) / ( p(w1)*...*p(wn) ) )
+    def get_corpus(self):
+        """Trả về danh sách câu trong corpus."""
+        return self.corpus
 
-    Trong đó:
-      p(w1,...,wn) = count_ngram / total_ngrams[n]   (xác suất n-gram bậc n)
-      p(wi)        = count_unigram / total_ngrams[1] (xác suất unigram)
-    """
-    # Đếm n-gram và tổng số n-gram
-    ngram_counts = defaultdict(Counter)  # n -> Counter( (w1,...,wn) -> count )
-    total_ngrams = defaultdict(int)      # n -> tổng số n-gram cấp n
-    word_counts = Counter()              # Đếm tần suất unigram
 
-    # 1) Duyệt từng câu trong corpus
-    for sentence in corpus:
-        # Tách từ, chỉ lấy chữ + số (nếu có)
-        words = re.findall(r'\w+', sentence.lower())
-        # Đếm unigram
-        word_counts.update(words)
+class PhraseExtractor:
+    """Trích xuất các cụm từ có ý nghĩa từ corpus dựa trên chỉ số PMI."""
 
-        # Đếm n-gram 1..max_ngram
-        length = len(words)
-        for n in range(1, max_ngram + 1):
-            if length >= n:
-                # Tạo n-gram bằng zip trượt
-                ngrams_in_sentence = zip(*(words[i:] for i in range(n)))
-                ngram_list = list(ngrams_in_sentence)
-                # Cập nhật
-                ngram_counts[n].update(ngram_list)
-                total_ngrams[n] += (length - n + 1)
+    def __init__(self, corpus, max_ngram=5, min_freq=2, min_pmi=3):
+        self.corpus = corpus
+        self.max_ngram = max_ngram
+        self.min_freq = min_freq
+        self.min_pmi = min_pmi
+        self.phrase_dict = self._build_phrase_dict()
 
-    phrase_dict = {}
+    def _build_phrase_dict(self):
+        """Xây dựng từ điển cụm từ sử dụng chỉ số PMI."""
 
-    # 2) Tính PMI cho n-gram từ n=2..max_ngram
-    for n in range(2, max_ngram + 1):
-        for ngram_tuple, ngram_count in ngram_counts[n].items():
-            # Kiểm tra tần suất tối thiểu
-            if ngram_count < min_freq:
-                continue
+        ngram_counts = defaultdict(Counter)
+        total_ngrams = defaultdict(int)
+        word_counts = Counter()
 
-            # Xác suất n-gram
-            p_ngram = ngram_count / total_ngrams[n]
+        # 1) Duyệt từng câu trong corpus và đếm n-grams
+        for sentence in self.corpus:
+            words = re.findall(r'\w+', sentence)
+            word_counts.update(words)
 
-            # Xác suất độc lập (tích xác suất unigram)
-            p_indep = 1.0
-            for w in ngram_tuple:
-                p_w = word_counts[w] / total_ngrams[1]
-                p_indep *= p_w
+            for n in range(1, self.max_ngram + 1):
+                if len(words) >= n:
+                    ngrams = zip(*(words[i:] for i in range(n)))
+                    ngram_list = list(ngrams)
+                    ngram_counts[n].update(ngram_list)
+                    total_ngrams[n] += len(ngram_list)
 
-            # Tránh chia 0
-            if p_indep <= 0:
-                continue
+        phrase_dict = {}
 
-            # Tính PMI
-            pmi = math.log2(p_ngram / p_indep)
+        # 2) Tính PMI cho n-grams từ bậc 2 trở lên
+        for n in range(2, self.max_ngram + 1):
+            for ngram, count in ngram_counts[n].items():
+                if count < self.min_freq:
+                    continue
 
-            # Chọn cụm nếu PMI >= min_pmi
-            if pmi >= min_pmi:
-                phrase_text = " ".join(ngram_tuple)
-                phrase_join = "_".join(ngram_tuple)
-                phrase_dict[phrase_text] = phrase_join
+                p_ngram = count / total_ngrams[n]
+                p_indep = math.prod(word_counts[w] / total_ngrams[1] for w in ngram)
 
-    return phrase_dict
+                if p_indep <= 0:
+                    continue
 
-def segment_with_phrases(sentence, phrase_dict):
-    """
-    Thay thế (segment) các cụm từ đã phát hiện trong 'phrase_dict'
-    bằng dạng gắn kết (dùng dấu gạch dưới).
+                pmi = math.log2(p_ngram / p_indep)
+                if pmi >= self.min_pmi:
+                    phrase_text = " ".join(ngram)
+                    phrase_join = "_".join(ngram)
+                    phrase_dict[phrase_text] = phrase_join
 
-    - Ưu tiên thay thế cụm dài nhất (tính theo số ký tự) trước
-      để tránh việc cụm ngắn “ăn” cụm dài.
-    - Trả về list tokens sau khi thay thế.
-    """
-    # Đưa về lowercase
-    sentence_lower = sentence.lower()
+        return phrase_dict
 
-    # Sắp xếp phrase_dict theo độ dài key giảm dần (số ký tự)
-    for phrase, replacement in sorted(phrase_dict.items(), key=lambda x: -len(x[0])):
-        # Escape phrase để tránh lỗi regex nếu có ký tự đặc biệt
-        pattern = rf"\b{re.escape(phrase)}\b"
-        sentence_lower = re.sub(pattern, replacement, sentence_lower)
+    def get_phrases(self):
+        """Trả về từ điển cụm từ."""
+        return self.phrase_dict
 
-    # Tách theo khoảng trắng để trả về list
-    return sentence_lower.split()
 
-if __name__ == "__main__":
-    # Ví dụ: Đọc corpus từ file (mỗi dòng một câu)
-    corpus_file = "/content/bana_data.txt"
-    corpus = load_corpus(corpus_file)
+class TextSegmenter:
+    """Áp dụng từ điển cụm từ để phân đoạn văn bản."""
 
-    # Tham số tùy chỉnh
-    max_ngram = 3    # Độ dài tối đa của cụm
-    min_freq = 2     # Tần suất tối thiểu
-    min_pmi = 5      # Ngưỡng PMI tối thiểu (có thể thử 3->7, tuỳ data)
+    def __init__(self):
+        corpus_file = CORPUS
+        corpus_processor = CorpusProcessor(corpus_file)
+        corpus = corpus_processor.get_corpus()
 
-    # Xây dựng từ điển cụm
-    phrase_dict = build_phrase_dict(
-        corpus,
-        max_ngram=max_ngram,
-        min_freq=min_freq,
-        min_pmi=min_pmi
-    )
-    print("=== Phrase Dictionary ===")
-    for i, (k, v) in enumerate(list(phrase_dict.items())[:10]):
-        print(f"{k} -> {v}")
-    print("...")
+        #Trích xuất cụm từ bằng PMI
+        phrase_extractor = PhraseExtractor(corpus, max_ngram=3, min_freq=2, min_pmi=5)
+        phrase_dict = phrase_extractor.get_phrases()
+        self.phrase_dict = phrase_dict
 
-    # Thử nghiệm tách cụm cho một câu
-    test_sentence = (
-        "'Bang nghiêm thu, 'bang thanh li hơp đông păng 'bang kuyêt toan đei yuêt dĭ kơpal đâu tư adrĭng khôi lươ̆ng tơgǔm pơm chơ đêh têh bal, keh kong tơdrong trong xe, thuy lơi nôi đông, tơdrong ǔnh rang tơgǔm choh jang nông nghiêp"
-    )
+    def segment(self, sentence):
+        """Thay thế cụm từ bằng dạng gạch dưới."""
 
-    segmented_text = segment_with_phrases(test_sentence, phrase_dict)
-    print("\n=== Segmented Sentence ===")
-    print(segmented_text)
+        sentence_lower = sentence.lower()
+        for phrase, replacement in sorted(self.phrase_dict.items(), key=lambda x: -len(x[0])):
+            pattern = rf"\b{re.escape(phrase)}\b"
+            sentence_lower = re.sub(pattern, replacement, sentence_lower)
+
+        return sentence_lower.split()
+
+
+# # ===========================
+# # **Sử dụng hệ thống OOP**
+# # ===========================
+# if __name__ == "__main__":
+#     test_sentence = (
+#         "'Bang nghiêm thu, 'bang thanh li hơp đông păng 'bang kuyêt toan đei yuêt dĭ kơpal đâu tư adrĭng khôi lươ̆ng tơgǔm pơm chơ đêh têh bal, keh kong tơdrong trong xe, thuy lơi nôi đông, tơdrong ǔnh rang tơgǔm choh jang nông nghiêp"
+#     )
+
+#     text_segmenter = TextSegmenter()
+#     segmented_text = text_segmenter.segment(test_sentence)
+
+#     print("\n=== Segmented Sentence ===")
+#     print(segmented_text)

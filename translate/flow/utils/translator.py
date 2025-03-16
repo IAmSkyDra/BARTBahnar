@@ -1,4 +1,4 @@
-class Translator:
+class Translate_Model:
     def __init__(self, model_name="IAmSkyDra/BARTBana_Translation"):
         from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
@@ -12,10 +12,6 @@ class Translator:
         outputs = self.model.generate(inputs["input_ids"])
         translation = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return translation
-
-
-# Khởi tạo một đối tượng Translator, mô hình được tải chỉ một lần
-translator = Translator()
 
 # Ví dụ sử dụng
 # word = "ngiêm"

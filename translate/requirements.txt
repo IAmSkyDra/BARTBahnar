@@ -1,6 +1,0 @@
-urllib3
-tqdm 
-pandas 
-xlsxwriter 
-openpyxl
-pyvi
