@@ -23,8 +23,8 @@ Bana Translator is a sentence translation tool that follows a structured **flow-
 
 ### 1. Clone the Repository  
 ```bash
-git clone https://github.com/your-repo/bana-translator.git
-cd bana-translator
+git clone https://github.com/IAmSkyDra/BARTBahnar.git
+cd translate/flow
 ```
 
 ### 2. Install Dependencies  
