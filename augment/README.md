@@ -59,14 +59,8 @@ The output files are saved in the `output` directory with the following names:
 - `sliding_windows.csv`: Output from the `SlidingWindows` method.
 
 ## Dependencies
-
-- pandas
-- numpy
-- itertools
-- re
-
 Install the dependencies using pip:
 
 ```bash
-pip install pandas numpy
+pip install requirements.txt
 ```

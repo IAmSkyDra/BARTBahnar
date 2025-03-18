@@ -7,8 +7,8 @@ import re
 
 # Add path, language and config the code. After done configing, go to runner to run the code.
 
-LANG_SOURCE = 'en'
-LANG_TARGET = 'es'
+LANG_SOURCE = 'tiếng bana'
+LANG_TARGET = 'tiếng việt'
 INPUT_PATH = 'augment/test.csv' # Path to the input file (csv has 2 cols: LANG_SOURCE, LANG_TARGET)
 DICTIONARY_PATH = 'augment/dictionary.csv' # Path to the dictionary file (csv has 3 cols: LANG_SOURCE, LANG_TARGET, TYPE)
 
