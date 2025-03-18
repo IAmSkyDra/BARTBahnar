@@ -1,13 +1,25 @@
 from augment import Combine, SwapSentences, ReplaceWithSameType, RandomInsertion, RandomDeletion, SlidingWindows
 
 def main():
-    # Instantiate each augmentation class
-    combine = Combine()
-    swap_sentences = SwapSentences()
-    replace_with_same_type = ReplaceWithSameType()
-    random_insertion = RandomInsertion()
-    random_deletion = RandomDeletion()
-    sliding_windows = SlidingWindows()
+    # Configuration values
+    lang_source = 'tiếng bana'
+    lang_target = 'tiếng việt'
+    input_path = 'augment/test.csv'
+    dictionary_path = 'augment/dictionary.csv'
+    batch_size = 10
+    limit_new_sentences = 10
+    num_insertions = 1
+    max_lines_generated = 10
+    num_deletions = 1
+    window_size = 2
+
+    # Instantiate each augmentation class with configurations
+    combine = Combine(lang_source, lang_target, input_path, batch_size=batch_size)
+    swap_sentences = SwapSentences(lang_source, lang_target, input_path)
+    replace_with_same_type = ReplaceWithSameType(lang_source, lang_target, input_path, dictionary_path, limit_new_sentences=limit_new_sentences)
+    random_insertion = RandomInsertion(lang_source, lang_target, input_path, dictionary_path, num_insertions=num_insertions, max_lines_generated=max_lines_generated)
+    random_deletion = RandomDeletion(lang_source, lang_target, input_path, num_deletions=num_deletions)
+    sliding_windows = SlidingWindows(lang_source, lang_target, input_path, window_size=window_size)
 
     # Test each augmentation method
     print("Testing Combine...")

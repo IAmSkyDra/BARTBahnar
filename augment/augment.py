@@ -5,32 +5,32 @@ import string
 from itertools import permutations
 import re 
 
-# Add path, language and config the code. After done configing, go to runner to run the code.
+# # Add path, language and config the code. After done configing, go to runner to run the code.
 
-LANG_SOURCE = 'tiếng bana'
-LANG_TARGET = 'tiếng việt'
-INPUT_PATH = 'augment/test.csv' # Path to the input file (csv has 2 cols: LANG_SOURCE, LANG_TARGET)
-DICTIONARY_PATH = 'augment/dictionary.csv' # Path to the dictionary file (csv has 3 cols: LANG_SOURCE, LANG_TARGET, TYPE)
+# LANG_SOURCE = 'tiếng bana'
+# LANG_TARGET = 'tiếng việt'
+# INPUT_PATH = 'augment/test.csv' # Path to the input file (csv has 2 cols: LANG_SOURCE, LANG_TARGET)
+# DICTIONARY_PATH = 'augment/dictionary.csv' # Path to the dictionary file (csv has 3 cols: LANG_SOURCE, LANG_TARGET, TYPE)
 
-## CONFIG ##
-### Replace with same type:
-LIMIT_NEW_SENTENCES = 10
-### Combine:
-BATCH_SIZE = 10
-### Random Insertion:
-NUM_INSERTIONS = 1
-MAX_LINES_GENERATED = 10
-### Random Deletion:
-NUM_DELETIONS = 1
-### Sliding Windows:
-WINDOW_SIZE = 2
+# ## CONFIG ##
+# ### Replace with same type:
+# LIMIT_NEW_SENTENCES = 10
+# ### Combine:
+# BATCH_SIZE = 10
+# ### Random Insertion:
+# NUM_INSERTIONS = 1
+# MAX_LINES_GENERATED = 10
+# ### Random Deletion:
+# NUM_DELETIONS = 1
+# ### Sliding Windows:
+# WINDOW_SIZE = 2
 
 
 class augmentmethods:
-    def __init__ (self):
-        self.data = pd.read_csv(INPUT_PATH, encoding='utf-8')
-        self.lang_source = LANG_SOURCE
-        self.lang_target = LANG_TARGET
+    def __init__(self, lang_source, lang_target, input_path):
+        self.data = pd.read_csv(input_path, encoding='utf-8')
+        self.lang_source = lang_source
+        self.lang_target = lang_target
     
     def augment(self, data):
         data = self.data
@@ -44,9 +44,9 @@ class augmentmethods:
         
 
 class Combine(augmentmethods):
-    def __init__ (self):
-        super().__init__()
-        self.batch_size = BATCH_SIZE
+    def __init__(self, lang_source, lang_target, input_path, batch_size):
+        super().__init__(lang_source, lang_target, input_path)
+        self.batch_size = batch_size
     
     def augment(self, data):
         data = self.data
@@ -62,8 +62,8 @@ class Combine(augmentmethods):
         return combined_data
 
 class SwapSentences(augmentmethods):
-    def __init__ (self):
-        super().__init__()
+    def __init__ (self, lang_source, lang_target, input_path):
+        super().__init__(lang_source, lang_target, input_path)
     
     def augment(self, data):
         data = self.data
@@ -84,10 +84,10 @@ class SwapSentences(augmentmethods):
         return swapped_data
     
 class ReplaceWithSameType(augmentmethods):
-    def __init__ (self):
-        super().__init__()
-        self.dictionary = pd.read_csv(DICTIONARY_PATH, encoding='utf-8')
-        self.limit_new_sentences = LIMIT_NEW_SENTENCES
+    def __init__(self, lang_source, lang_target, input_path, dictionary_path, limit_new_sentences):
+        super().__init__(lang_source, lang_target, input_path)
+        self.dictionary = pd.read_csv(dictionary_path, encoding='utf-8')
+        self.limit_new_sentences = limit_new_sentences
     
     def augment(self, data):
         data = self.data
@@ -120,11 +120,11 @@ class ReplaceWithSameType(augmentmethods):
         return replaced_data
     
 class RandomInsertion(augmentmethods):
-    def __init__ (self):
-        super().__init__()
-        self.dictionary = pd.read_csv(DICTIONARY_PATH, encoding='utf-8')
-        self.num_insertions = NUM_INSERTIONS
-        self.max_lines_generated = MAX_LINES_GENERATED
+    def __init__(self, lang_source, lang_target, input_path, dictionary_path, num_insertions, max_lines_generated):
+        super().__init__(lang_source, lang_target, input_path)
+        self.dictionary = pd.read_csv(dictionary_path, encoding='utf-8')
+        self.num_insertions = num_insertions
+        self.max_lines_generated = max_lines_generated
         
     def augment(self, data):
         data = self.data
@@ -151,9 +151,9 @@ class RandomInsertion(augmentmethods):
         return inserted_data
     
 class RandomDeletion(augmentmethods):
-    def __init__ (self):
-        super().__init__()
-        self.num_deletions = NUM_DELETIONS
+    def __init__(self, lang_source, lang_target, input_path, num_deletions):
+        super().__init__(lang_source, lang_target, input_path)
+        self.num_deletions = num_deletions
     
     def augment(self, data):
         data = self.data
@@ -178,9 +178,9 @@ class RandomDeletion(augmentmethods):
         return deleted_data
     
 class SlidingWindows(augmentmethods):
-    def __init__ (self):
-        super().__init__()
-        self.window_size = WINDOW_SIZE
+    def __init__(self, lang_source, lang_target, input_path, window_size):
+        super().__init__(lang_source, lang_target, input_path)
+        self.window_size = window_size
     
     def augment(self, data):
         data = self.data
