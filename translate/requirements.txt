@@ -1,0 +1,7 @@
+urllib3==2.3.0
+tqdm==4.67.1
+pandas==2.2.2
+xlsxwriter==3.2.2
+openpyxl==3.1.5
+pyvi==0.1.1
+spacy==3.8.4
