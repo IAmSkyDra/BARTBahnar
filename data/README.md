@@ -1,19 +1,21 @@
 # Data Folder
 
 ## 1. Introduction
-This folder contains all datasets used in this paper. The datasets are organized into four subfolders based on their purpose. Each folder nghiên cứu và đầu từ thời gian để thu nhập và hoàn thành. Chúng tôi phải dành thời gian trong một năm để viếng thăm các tỉnh thành ở Việt Nam such as Binh Dinh, Kom Tum, and Gia Lai để thu nhập nguồn data này. 
 
-Nguồn dữ liệu thu nhập từng nhiểu chủ thể khác nhau.
+This folder contains all datasets used in this study. The datasets are organized into four subfolders based on their purpose. Each dataset has been carefully collected and compiled over time. The data collection process took an entire year, during which we traveled to various provinces in Vietnam, such as Binh Dinh, Kom Tum, and Gia Lai, to gather these resources.
 
-- Điền dã
-- Kinh thánh 
-- Văn bản phát thanh 
-- Sử thi 
+The datasets originate from various sources, including:
 
-Với nguồn dữ kiệu điền dã chúng đã gửi cho 20 người Bahnaric để người ta khảo sát ngữ pháp và từ vựng thường ngày mà học sử dụng. Bên cạnh đó, kinh thánh của người Bahnaric được cha sử tại một nhà thờ địa phương tặng cho. Đài phát thanh ở khu vực người Bahnaric sinh sống cũng tặng cho chúng tôi những văn bản phát thanh hằng ngày được phát trên loa cửa địa phuongq. Có những thư viện làng nơi những đứa trẻ Bahnaric lui tới có những cuốn sach sử thỉ huyênf thoại tuyệt vời. Chúng tôi đã thu nhập những cuốn sách sử thi đó. 
+- **Field research**
+- **Religious texts**
+- **Broadcast transcripts**
+- **Epic literature**
 
-Tất cả dữ liệu thô đều nằm ở dạng giấy và viết tay nên chúng tôi tổng hợp và số hóa dữ liệu. Có tất cả 50 người ẩn danh đã phụ giúp chúng tôi trong quá trình số hóa trên và tạo ra một data collection với hai cột named "Bahnaric" and "Vietnamese". Từ data collection này chúng tôi đã phân chia với nhiều mục đích sử dụng khác nhau. 
+For the **field research** data, we enlisted 20 Bahnaric speakers to conduct surveys on their daily vocabulary and grammar usage. Additionally, we obtained **Bahnaric religious texts** from a local church. A regional **radio station** in the Bahnaric-speaking area provided us with daily broadcast transcripts. Moreover, we collected **epic literature** from village libraries, which serve as a cultural hub for Bahnaric children.
 
+Since the raw data was originally in handwritten or paper format, we undertook the process of digitization. A total of 50 anonymous contributors assisted in this effort, resulting in a structured dataset with two columns: **"Bahnaric"** and **"Vietnamese"**. This dataset has been further divided for different research and development purposes.
+
+---
 
 ## 2. Folder Structure
 
@@ -31,10 +33,18 @@ data
 │   ├── vietnamese_words.csv
 ```
 
+---
+
 ## 3. Description
 
-- **original**: Contains the original datasets which is the data collection, but wewe divides into 2 sets named training set (90%) and testing set (10%).
-- **back_translation**: Contains datasets that have been processed through back translation to enrich the dataset. This dataset is based on the Vietnamese dataaset, and we have to preprocess and làm sạch dữ liệu để đảm bảo trong dữ liệu chỉ chứa Vietnamese. Then, we đem data qua model dịch từ tiếng viết sang bana (BartViBa). Tăng độ chính xác, chúng tôi đã thuê những người ẩn danh kiểm tra và dịch lại từng từ thật kĩ.
-- **dictionary**: Contains dictionary data in word-level, which used for lexical mapping (Solr)  and data augmentation in the project.
-- **corpus**: 
+- **original**: Contains the original dataset, which has been divided into two subsets: **training set (90%)** and **testing set (10%)**. This dataset serves as the foundation for all other processed datasets used in various tasks, including machine learning and linguistic analysis.
 
+- **back_translation**: Includes datasets that have undergone **back translation** to enhance data diversity. This dataset is derived from Vietnamese sources, which were preprocessed and cleaned to ensure only Vietnamese content was included. The data was then translated from Vietnamese to Bahnaric using the **BartViBa** model. To improve accuracy, we employed anonymous linguists to manually review and verify each translation. This dataset is useful for improving model robustness and enriching the parallel corpus for translation tasks.
+
+- **dictionary**: Contains dictionary data extracted from the original dataset. This is used for **lexical mapping (Solr)** and **data augmentation** in the project. The dictionary data provides a structured mapping between Bahnaric and Vietnamese words, facilitating tasks such as automatic translation, semantic search, and terminology alignment.
+
+- **corpus**: Comprises **sentence-level** Bahnaric data and **word-level** Vietnamese data, which are crucial for the process of **loanword detection**. This dataset supports various linguistic analyses, including syntactic pattern recognition and phonetic similarity assessments. The corpus is essential for training and evaluating NLP models tailored for the Bahnaric language.
+
+---
+
+This dataset serves as a valuable resource for linguistic research and computational applications related to the Bahnaric language. 
