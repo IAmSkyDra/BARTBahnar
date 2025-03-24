@@ -39,7 +39,7 @@ data
 
 - **original**: Contains the original dataset, which has been divided into two subsets: **training set (90%)** and **testing set (10%)**. This dataset serves as the foundation for all other processed datasets used in various tasks, including machine learning and linguistic analysis.
 
-- **back_translation**: Includes datasets that have undergone **back translation** to enhance data diversity. This dataset is derived from Vietnamese sources, which were preprocessed and cleaned to ensure only Vietnamese content was included. The data was then translated from Vietnamese to Bahnaric using the **BartViBa** model. To improve accuracy, we employed anonymous linguists to manually review and verify each translation. This dataset is useful for improving model robustness and enriching the parallel corpus for translation tasks.
+- **back_translation**: Includes datasets that have undergone **back translation** to enhance data diversity. This dataset is derived from [Vietnamese sources](https://huggingface.co/datasets/vietgpt/wikipedia_vi), which were preprocessed and cleaned to ensure only Vietnamese content was included. The data was then translated from Vietnamese to Bahnaric using the **BartViBa** model (Vo et al., 2024). To improve accuracy, we employed anonymous linguists to manually review and verify each translation. This dataset is useful for improving model robustness and enriching the parallel corpus for translation tasks.
 
 - **dictionary**: Contains dictionary data extracted from the original dataset. This is used for **lexical mapping (Solr)** and **data augmentation** in the project. The dictionary data provides a structured mapping between Bahnaric and Vietnamese words, facilitating tasks such as automatic translation, semantic search, and terminology alignment.
 
@@ -48,3 +48,6 @@ data
 ---
 
 This dataset serves as a valuable resource for linguistic research and computational applications related to the Bahnaric language. 
+
+## References
+Vo, H. N. K., Le, D. D., Phan, T. M. D., Nguyen, T. S., Pham, Q. N., Tran, N. O., Nguyen, Q. D., Vo, T. M. H., & Quan, T. (2024). *Revitalizing Bahnaric Language through Neural Machine Translation: Challenges, Strategies, and Promising Outcomes.* Proceedings of the AAAI Conference on Artificial Intelligence, 38(21), 23360–23368.
