@@ -2,8 +2,8 @@ from augment import Combine, SwapSentences, ReplaceWithSameType, RandomInsertion
 
 def main():
     # Configuration values
-    lang_source = 'tiếng bana'
-    lang_target = 'tiếng việt'
+    lang_source = 'Bahnaric'
+    lang_target = 'Vietnamese'
     input_path = 'augment/test.csv'
     dictionary_path = 'augment/dictionary.csv'
     batch_size = 10

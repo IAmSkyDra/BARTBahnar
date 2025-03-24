@@ -13,10 +13,10 @@ pip install requirements.txt
 ### 1. Combine sentences
 Combines sentences from the dataset in pairs to create new sentences.
 
-### 2. Sentence-level swapping
+### 2. Swap sentences
 Swaps sentences within the same text to create new variations.
 
-### 3. Replace words
+### 3. Replace words with the same types of word
 Replaces words in the sentences with other words of the same type from a dictionary.
 
 ### 4. Random Insertion
@@ -50,8 +50,6 @@ The configuration for the augmentation methods is defined at the beginning of `r
   - `5`: Random Deletion
   - `6`: Sliding Window
 
-## Usage
-
 To run the augmentation methods, execute the `runner.py` script:
 
 ```bash
@@ -61,16 +59,5 @@ python runner.py
 Set the `METHOD_NUMS` value in `runner.py` to select the desired augmentation method before running the script.
 
 The script will generate augmented data and save the results to the `output` directory.
-
-## Output
-
-The output files are saved in the `output` directory with the following names:
-
-- `combined.csv`: Output from the `Combine` method.
-- `swapped_sentences.csv`: Output from the `SwapSentences` method.
-- `replaced_with_same_type.csv`: Output from the `ReplaceWithSameType` method.
-- `random_insertion.csv`: Output from the `RandomInsertion` method.
-- `random_deletion.csv`: Output from the `RandomDeletion` method.
-- `sliding_windows.csv`: Output from the `SlidingWindows` method.
 
 
