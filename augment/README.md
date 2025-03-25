@@ -1,27 +1,30 @@
 # Augmentation Methods for Data Augmentation
 
-This project provides various data augmentation methods for text data. The augmentation methods are implemented in `augment.py`, and the `runner.py` script demonstrates how to use these methods. We use this to augmentate the dataset of Bahnarist and Vietnamese. But evey language is alright to use.
+This project offers a collection of data augmentation techniques tailored for text data. All augmentation methods are implemented in `augment.py`, while `runner.py` serves as a usage example, demonstrating how to apply these techniques effectively. Although our primary use case involves augmenting datasets in Bahnaric and Vietnamese, the framework is language-agnostic and can be applied to various language.
 
 ## Augmentation Methods
 
-### 1. Combine
+### 1. CombineSentences
 Combines sentences from the dataset in pairs to create new sentences.
 
 ### 2. SwapSentences
-Swaps sentences within the same text to create new variations.
+Swaps sentences within the same papagraph to create new variations.
 
-### 3. ReplaceWithSameType
-Replaces words in the sentences with other words of the same type from a dictionary.
+### 3. ReplaceWithSameTheme
+Replaces words in the sentences with other words of the same thematic labels from a dictionary such as humna, animal, food, occupations, location,v.v.
 
-### 4. RandomInsertion
-Randomly inserts words from a dictionary into the sentences.
+### 4. ReplaceWithSameSynonyms
+Replace words with similar *part-of-speech* (POS) tags to improve sentence semantics.
 
-### 5. RandomDeletion
+
+### 5. RandomInsertion
+Randomly inserts words before the ending word with the words having similarity in themetic labels (location and time reference). 
+
+### 6. RandomDeletion
 Randomly deletes words from the sentences.
 
-### 6. SlidingWindows
-Generates new sentences by applying a sliding window over the original sentences.
-
+### 7. SlidingWindows
+Generates new sentences by applying a sliding window, with a size ranging from two to less than the length of the sentence, over the original sentences.
 ## Configuration
 
 The configuration for the augmentation methods is defined at the beginning of `augment.py`:
@@ -46,17 +49,6 @@ python runner.py
 ```
 
 The script will generate augmented data and save the results to the `output` directory.
-
-## Output
-
-The output files are saved in the `output` directory with the following names:
-
-- `combined.csv`: Output from the `Combine` method.
-- `swapped_sentences.csv`: Output from the `SwapSentences` method.
-- `replaced_with_same_type.csv`: Output from the `ReplaceWithSameType` method.
-- `random_insertion.csv`: Output from the `RandomInsertion` method.
-- `random_deletion.csv`: Output from the `RandomDeletion` method.
-- `sliding_windows.csv`: Output from the `SlidingWindows` method.
 
 ## Dependencies
 Install the dependencies using pip:
