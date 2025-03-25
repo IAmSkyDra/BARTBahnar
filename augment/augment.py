@@ -7,8 +7,8 @@ import re
 
 # # Add path, language and config the code. After done configing, go to runner to run the code.
 
-# LANG_SOURCE = 'tiếng bana'
-# LANG_TARGET = 'tiếng việt'
+# LANG_SOURCE = 'Bahnaric'
+# LANG_TARGET = 'Vietnamese'
 # INPUT_PATH = 'augment/test.csv' # Path to the input file (csv has 2 cols: LANG_SOURCE, LANG_TARGET)
 # DICTIONARY_PATH = 'augment/dictionary.csv' # Path to the dictionary file (csv has 3 cols: LANG_SOURCE, LANG_TARGET, TYPE)
 
@@ -82,73 +82,166 @@ class SwapSentences(augmentmethods):
         print('Input size:', len(self.data))
         print('Output size:', len(swapped_data))
         return swapped_data
-    
-class ReplaceWithSameType(augmentmethods):
-    def __init__(self, lang_source, lang_target, input_path, dictionary_path, limit_new_sentences):
-        super().__init__(lang_source, lang_target, input_path)
-        self.dictionary = pd.read_csv(dictionary_path, encoding='utf-8')
-        self.limit_new_sentences = limit_new_sentences
-    
-    def augment(self, data):
-        data = self.data
-        dictionary = self.dictionary
-        data = data.values
-        replaced_data = []
-        for a, b in data:
-            words_a = a.split()
-            words_b = b.split()
-            new_sentences = set()
-            for i, word in enumerate(words_a):
-                word_type = dictionary[(dictionary[self.lang_source].str.len() == len(word)) & (dictionary[self.lang_source] != word)][self.lang_target].values
-                if len(word_type) > 0:
-                    for _ in range(min(self.limit_new_sentences, len(word_type))):
-                        new_word = random.choice(word_type)
-                        new_sentence = words_a[:i] + [new_word] + words_a[i+1:]
-                        new_sentences.add(' '.join(new_sentence))
-            for i, word in enumerate(words_b):
-                word_type = dictionary[(dictionary[self.lang_target].str.len() == len(word)) & (dictionary[self.lang_target] != word)][self.lang_source].values
-                if len(word_type) > 0:
-                    for _ in range(min(self.limit_new_sentences, len(word_type))):
-                        new_word = random.choice(word_type)
-                        new_sentence = words_b[:i] + [new_word] + words_b[i+1:]
-                        new_sentences.add(' '.join(new_sentence))
-            for sentence in new_sentences:
-                replaced_data.append([sentence, ' '.join(words_b)])
-        replaced_data = pd.DataFrame(replaced_data, columns=[self.lang_source, self.lang_target])
-        print('Input size:', len(self.data))
-        print('Output size:', len(replaced_data))
-        return replaced_data
+
+class ReplaceWithSameThemes(augmentmethods):
+    def __init__(self, input_file: str, theme_file: str, output_file: str):
+        self.input_file = input_file
+        self.theme_file = theme_file
+        self.output_file = output_file
+
+        # Load theme file and validate required columns
+        self.df_theme = pd.read_excel(self.theme_file)
+        required_columns = ['Vietnamese', 'Bahnaric', 'pos']
+        for col in required_columns:
+            if col not in self.df_theme.columns:
+                raise KeyError(f"Column '{col}' not found in the theme file.")
+
+        # Create mapping dictionary from Vietnamese to Bahnaric
+        self.theme_mapping = self.df_theme.set_index('Vietnamese')['Bahnaric'].to_dict()
+
+    def augment(self):
+        # Load input CSV file
+        df_input = pd.read_csv(self.input_file)
+
+        # Validate input columns
+        if 'Vietnamese' not in df_input.columns or 'Bahnaric' not in df_input.columns:
+            raise KeyError("Columns 'Vietnamese' or 'Bahnaric' not found in the input file.")
+
+        expanded_rows = []
+
+        for _, row in df_input.iterrows():
+            original_viet = str(row['Vietnamese'])
+            original_bana = str(row['Bahnaric'])
+
+            viet_words_list = original_viet.split(" ")
+            bana_words_list = original_bana.split(" ")
+
+            if len(bana_words_list) < len(viet_words_list):
+                bana_words_list += [""] * (len(viet_words_list) - len(bana_words_list))
+
+            for i, word_viet in enumerate(viet_words_list):
+                if word_viet in self.theme_mapping:
+                    replacement_bana = self.theme_mapping[word_viet]
+
+                    new_viet_words = viet_words_list.copy()
+                    new_bana_words = bana_words_list.copy()
+
+                    new_viet_words[i] = word_viet  # Keep Vietnamese word unchanged
+                    new_bana_words[i] = replacement_bana  # Replace Bahnaric word
+
+                    new_viet_sentence = " ".join(new_viet_words)
+                    new_bana_sentence = " ".join(new_bana_words)
+
+                    expanded_rows.append({
+                        'Vietnamese': new_viet_sentence,
+                        'Bahnaric': new_bana_sentence
+                    })
+
+        expanded_df = pd.DataFrame(expanded_rows)
+        result_df = pd.concat([df_input, expanded_df], ignore_index=True)
+        result_df.to_csv(self.output_file, index=False)
+
+class ReplaceWithSameSynomyms(augmentmethods):
+    def __init__(self, input_file: str, theme_file: str, output_file: str):
+        self.input_file = input_file
+        self.theme_file = theme_file
+        self.output_file = output_file
+
+        # Load theme file and validate required columns
+        self.df_theme = pd.read_excel(self.theme_file)
+        required_columns = ['Vietnamese', 'Bahnaric', 'pos']
+        for col in required_columns:
+            if col not in self.df_theme.columns:
+                raise KeyError(f"Column '{col}' not found in the theme file.")
+
+        # Create mapping dictionary from Vietnamese to Bahnaric
+        self.theme_mapping = self.df_theme.set_index('Vietnamese')['Bahnaric'].to_dict()
+
+    def augment(self):
+        # Load input CSV file
+        df_input = pd.read_csv(self.input_file)
+
+        # Validate input columns
+        if 'Vietnamese' not in df_input.columns or 'Bahnaric' not in df_input.columns:
+            raise KeyError("Columns 'Vietnamese' or 'Bahnaric' not found in the input file.")
+
+        expanded_rows = []
+
+        for _, row in df_input.iterrows():
+            original_viet = str(row['Vietnamese'])
+            original_bana = str(row['Bahnaric'])
+
+            viet_words_list = original_viet.split(" ")
+            bana_words_list = original_bana.split(" ")
+
+            if len(bana_words_list) < len(viet_words_list):
+                bana_words_list += [""] * (len(viet_words_list) - len(bana_words_list))
+
+            for i, word_viet in enumerate(viet_words_list):
+                if word_viet in self.theme_mapping:
+                    replacement_bana = self.theme_mapping[word_viet]
+
+                    new_viet_words = viet_words_list.copy()
+                    new_bana_words = bana_words_list.copy()
+
+                    new_viet_words[i] = word_viet  # Keep Vietnamese word unchanged
+                    new_bana_words[i] = replacement_bana  # Replace Bahnaric word
+
+                    new_viet_sentence = " ".join(new_viet_words)
+                    new_bana_sentence = " ".join(new_bana_words)
+
+                    expanded_rows.append({
+                        'Vietnamese': new_viet_sentence,
+                        'Bahnaric': new_bana_sentence
+                    })
+
+        expanded_df = pd.DataFrame(expanded_rows)
+        result_df = pd.concat([df_input, expanded_df], ignore_index=True)
+        result_df.to_csv(self.output_file, index=False)
+
     
 class RandomInsertion(augmentmethods):
-    def __init__(self, lang_source, lang_target, input_path, dictionary_path, num_insertions, max_lines_generated):
-        super().__init__(lang_source, lang_target, input_path)
-        self.dictionary = pd.read_csv(dictionary_path, encoding='utf-8')
-        self.num_insertions = num_insertions
-        self.max_lines_generated = max_lines_generated
-        
-    def augment(self, data):
-        data = self.data
-        dictionary = self.dictionary
-        data = data.values
-        inserted_data = []
-        for a, b in data:
-            words_a = a.split()
-            words_b = b.split()
-            for _ in range(self.max_lines_generated):
-                new_words_a = words_a[:]
-                new_words_b = words_b[:]
-                for _ in range(self.num_insertions):
-                    pos_a = random.randint(0, len(new_words_a)) if len(new_words_a) > 0 else 0
-                    pos_b = random.randint(0, len(new_words_b)) if len(new_words_b) > 0 else 0
-                    insert_word_a = random.choice(dictionary[self.lang_source].dropna().values)
-                    insert_word_b = random.choice(dictionary[self.lang_target].dropna().values)
-                    new_words_a.insert(pos_a, insert_word_a)
-                    new_words_b.insert(pos_b, insert_word_b)
-                inserted_data.append([' '.join(new_words_a), ' '.join(new_words_b)])
-        inserted_data = pd.DataFrame(inserted_data, columns=[self.lang_source, self.lang_target])
-        print('Input size:', len(self.data))
-        print('Output size:', len(inserted_data))
-        return inserted_data
+    def __init__(self, input_folder: str, theme_file: str, output_folder: str):
+        self.input_folder = input_folder
+        self.output_folder = output_folder
+
+        # Ensure output folder exists
+        os.makedirs(self.output_folder, exist_ok=True)
+
+        # Load theme file and filter words by 'time' and 'place' themes
+        df_theme = pd.read_excel(theme_file)
+        required_columns = ['Vietnamese', 'Bahnaric', 'theme']
+        for col in required_columns:
+            if col not in df_theme.columns:
+                raise KeyError(f"Column '{col}' not found in theme file.")
+
+        filtered = df_theme[df_theme['theme'].isin(['time', 'place'])]
+        self.viet_words = filtered['Vietnamese'].dropna().tolist()
+        self.bana_words = filtered['Bahnaric'].dropna().tolist()
+
+    def augment(self):
+        for file_name in os.listdir(self.input_folder):
+            if file_name.endswith('.xlsx'):
+                input_path = os.path.join(self.input_folder, file_name)
+                print(f"Processing file: {file_name}")
+
+                df = pd.read_excel(input_path)
+
+                if 'Vietnamese' not in df.columns or 'Bahnaric' not in df.columns:
+                    raise KeyError(f"Columns 'Vietnamese' or 'Bahnaric' missing in file {file_name}.")
+
+                def insert_random_word(paragraph, word_list):
+                    punctuation_pattern = r'([;,!?.])'
+                    if not word_list:
+                        return paragraph
+                    word = random.choice(word_list)
+                    return re.sub(punctuation_pattern, f' {word}\\1', str(paragraph))
+
+                df['Vietnamese'] = df['Vietnamese'].apply(lambda x: insert_random_word(x, self.viet_words))
+                df['Bahnaric'] = df['Bahnaric'].apply(lambda x: insert_random_word(x, self.bana_words))
+
+                output_path = os.path.join(self.output_folder, file_name)
+                df.to_csv(output_path, index=False)
     
 class RandomDeletion(augmentmethods):
     def __init__(self, lang_source, lang_target, input_path, num_deletions):

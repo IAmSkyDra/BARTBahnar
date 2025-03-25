@@ -1,6 +1,5 @@
 # Augmentation Methods for Data Augmentation
-
-This project provides various data augmentation methods for text data. The augmentation methods are implemented in `augment.py`, and the `runner.py` script demonstrates how to use these methods. We use this to augmentate the dataset of Bahnarist and Vietnamese. But every language is alright to use.
+This project offers a collection of data augmentation techniques tailored for text data. All augmentation methods are implemented in `augment.py`, while `runner.py` serves as a usage example, demonstrating how to apply these techniques effectively. Although our primary use case involves augmenting datasets in Bahnaric and Vietnamese, the framework is language-agnostic and can be applied to various language.
 
 ## Getting started
 Install the dependencies using pip:
@@ -9,26 +8,28 @@ Install the dependencies using pip:
 pip install requirements.txt
 ```
 
-## Augmentation Methods
-### 1. Combine sentences
+### 1. CombineSentences
 Combines sentences from the dataset in pairs to create new sentences.
 
-### 2. Swap sentences
-Swaps sentences within the same text to create new variations.
+### 2. SwapSentences
+Swaps sentences within the same papagraph to create new variations.
 
-### 3. Replace words with the same types of word
-Replaces words in the sentences with other words of the same type from a dictionary.
+### 3. ReplaceWithSameThemes
+Replaces words in the sentences with other words of the same thematic labels from a dictionary such as humna, animal, food, occupations, location,v.v.
 
-### 4. Random Insertion
-Randomly inserts words from a dictionary into the sentences.
+### 4. ReplaceWithSameSynonyms
+Replace words with similar *part-of-speech* (POS) tags to improve sentence semantics.
 
-### 5. Random Deletion
+### 5. RandomInsertion
+Randomly inserts words before the ending word with the words having similarity in themetic labels (location and time reference). 
+
+### 6. RandomDeletion
 Randomly deletes words from the sentences.
 
-### 6. Sliding Window
-Generates new sentences by applying a sliding window over the original sentences, starting from a custom value until the maximum possible window.
+### 7. SlidingWindows
+Generates new sentences by applying a sliding window, with a size ranging from two to less than the length of the sentence, over the original sentences.
 
-## Configuration and running
+## Configuration
 
 The configuration for the augmentation methods is defined at the beginning of `runner.py` in the configuration zone:
 
@@ -50,14 +51,20 @@ The configuration for the augmentation methods is defined at the beginning of `r
   - `5`: Random Deletion
   - `6`: Sliding Window
 
+## Usage
+
 To run the augmentation methods, execute the `runner.py` script:
 
 ```bash
 python runner.py
 ```
 
-Set the `METHOD_NUMS` value in `runner.py` to select the desired augmentation method before running the script.
-
 The script will generate augmented data and save the results to the `output` directory.
 
+## Dependencies
+Install the dependencies using pip:
+
+```bash
+pip install requirements.txt
+```
 
