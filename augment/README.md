@@ -10,7 +10,7 @@ Combines sentences from the dataset in pairs to create new sentences.
 ### 2. SwapSentences
 Swaps sentences within the same papagraph to create new variations.
 
-### 3. ReplaceWithSameTheme
+### 3. ReplaceWithSameThemes
 Replaces words in the sentences with other words of the same thematic labels from a dictionary such as humna, animal, food, occupations, location,v.v.
 
 ### 4. ReplaceWithSameSynonyms
